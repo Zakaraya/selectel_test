@@ -1,0 +1,8 @@
+{% extends 'jokes/base.html' %}
+
+{% block content %}
+    {% for joke in jokes %}
+        <h1>{{ joke.joke_text }}</h1>
+    {% endfor %}
+
+{% endblock %}
