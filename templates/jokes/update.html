@@ -1,0 +1,18 @@
+{% extends "jokes/base.html" %}
+
+{% block content %}
+        <h2>Изменение шутки</h2>
+        <form method="POST" class="post-form" action="{% url 'update_joke' joke.id %}">
+            {% csrf_token %}
+            <br>
+                    <label class="col-sm-2 col-form-label">Текст шутки</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="joke_text" id="id_joke_text"
+                               value="{{ joke.joke_text }}"/>
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+        </form>
+
+{% endblock content %}

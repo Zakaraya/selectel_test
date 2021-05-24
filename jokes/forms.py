@@ -1,6 +1,8 @@
 from django import forms
 from django.contrib.auth.models import User
 
+from jokes.models import Joke
+
 
 class RegistrationForm(forms.ModelForm):
     confirm_password = forms.CharField(widget=forms.PasswordInput)
@@ -45,3 +47,11 @@ class RegistrationForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'password', 'confirm_password', 'first_name', 'last_name', 'address', 'phone', 'email']
+
+
+class JokeForm(forms.ModelForm):
+    class Meta:
+        model = Joke
+        fields = ['joke_text']
+        widgets = {'joke_text': forms.TextInput(attrs={'class': 'form-control'}),
+                   }

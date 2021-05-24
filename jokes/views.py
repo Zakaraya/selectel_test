@@ -1,11 +1,11 @@
-from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from rest_framework import viewsets
+from datetime import date
 
-from .forms import RegistrationForm
+from django.contrib.auth import authenticate, login
+from django.http import HttpResponseRedirect, JsonResponse, HttpResponse
+from django.shortcuts import render, redirect
+import requests
+from .forms import RegistrationForm, JokeForm
 from .models import *
-from .serializers import JokeSerializer
 
 menu = [{'title': "Главная(все шутки)", 'url_name': 'home'},
         {'title': "Добавить шутку", 'url_name': 'add_joke'},
@@ -15,13 +15,9 @@ menu = [{'title': "Главная(все шутки)", 'url_name': 'home'},
 
 
 def index(request):
-    user = request.user
-    customer = JokeOwner.objects.filter(user__username=user)
-    for i in customer:
-        address = i.jokes
-        print(address)
-    jokes = Joke.objects.all()
-    context = {'menu': menu, 'jokes': jokes}
+    url = 'https://geek-jokes.sameerkumar.website/api'
+    joke = requests.get(url).text[1:-2]
+    context = {'menu': menu, 'joke': joke}
     return render(request, 'jokes/index.html', context)
 
 
@@ -48,6 +44,84 @@ def registration(request):
     return render(request, 'registration/login.html', {'form': form})
 
 
-class JokeViewSet(viewsets.ModelViewSet):
-    queryset = Joke.objects.all()
-    serializer_class = JokeSerializer
+def add_joke(request):
+    if request.method == "POST":
+        form = JokeForm(request.POST)
+        if form.is_valid():
+            try:
+                Joke.objects.create(joke_text=form.cleaned_data['joke_text'], add_time=date.today(),
+                                    user_joke=request.user)
+                return redirect('/')
+            except:
+                pass
+        else:
+            return form.errors
+    else:
+        form = JokeForm()
+    return render(request, 'jokes/add_joke.html', {'form': form})
+
+
+def profile(request):
+    user = request.user
+    jokes = Joke.objects.filter(user_joke__username=user)
+    context = {'menu': menu, 'jokes': jokes}
+    return render(request, 'jokes/profile.html', context)
+
+
+def add_favorite(request, quote):
+    try:
+        if request.method == 'GET':
+            new_favorite_joke = Joke.objects.create(
+                joke_text=quote,
+                add_time=date.today(),
+                user_joke=request.user
+            )
+            new_favorite_joke.save()
+            return HttpResponseRedirect('/')
+        else:
+            return JsonResponse({'data': False})
+    except:
+        return JsonResponse({'data': False})
+
+
+def edit_joke(request, pk):
+    joke = Joke.objects.get(pk=pk)
+    return render(request, 'jokes/update.html', {'joke': joke})
+
+
+def update_joke(request, pk):
+    try:
+        joke = Joke.objects.get(pk=pk)
+        form = JokeForm(request.POST, instance=joke)
+        if request.method == 'POST':
+            if form.is_valid():
+                form.save()
+                return HttpResponseRedirect('/accounts/profile/')
+            else:
+                return form.errors
+    except:
+        return JsonResponse({'data': False})
+    return render(request, 'jokes/update.html', {'joke': joke})
+
+
+def delete_joke(request, pk):
+    try:
+        joke = Joke.objects.get(pk=pk)
+        if request.method == 'GET':
+            joke.delete()
+            return HttpResponseRedirect('/accounts/profile/')
+    except:
+        return JsonResponse({'data': False})
+    return render(request, 'jokes/profile.html', {'joke': joke})
+
+
+def view_joke(request, pk):
+    try:
+        joke = Joke.objects.get(pk=pk)
+        user = request.user
+        if joke.user_joke == user:
+            return HttpResponse(f"<p>{joke.joke_text}</p>")
+        else:
+            return HttpResponse("<p>Нет доступа к этой шутке</p>")
+    except:
+        return HttpResponse("<p>Нет шутки с таким ID</p>")
