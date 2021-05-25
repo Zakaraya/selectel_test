@@ -5,7 +5,7 @@
     <h3>{{ joke }}</h3>
     {% else %}
     <h3>{{ joke }}</h3>
-    <span><a href="{% url 'add_favorite' joke %}" class="btn btn-primary">Добавить шутку</a></span>
+    <span><a href="{% url 'add_favorite' joke %}" class="btn btn-primary">Сохранить шутку</a></span>
     {% endif %}
 
 {% endblock %}

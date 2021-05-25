@@ -1,7 +1,6 @@
 {% extends 'jokes/base.html' %}
 
 {% block content %}
-{#         <span><a href="{% url 'add_joke' %}" class="btn btn-primary">Add New Record</a></span>#}
     {% for joke in jokes %}
         <h1>{{ joke.joke_text }}</h1>
         <a href="{% url 'edit_joke' joke.pk %}"
