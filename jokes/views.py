@@ -124,4 +124,4 @@ def view_joke(request, pk):
         else:
             return HttpResponse("<p>Нет доступа к этой шутке</p>")
     except:
-        return HttpResponse("<p>Нет шутки с таким ID</p>")
+        return HttpResponse("<p>Нет шутки с таким ID или Вы не вошли в систему</p>")

@@ -1,0 +1,9 @@
+site_name: Joke-Selectel-Test
+nav:
+  - Главная: index.md
+  - Добавить шутку: add_joke.md
+  - Личный кабинет: profile.md
+  - Отображение шутки по ID: view.md
+  - Регистрация: reg.md
+  - Авторизация: login.md
+
